@@ -3,26 +3,29 @@ import re
 import unicodecsv as csv
 import logging
 from datetime import datetime
-    
+
 def flatfile_maker(infile,outdir='csvs'):
     logging.basicConfig(filename='filemaker.log',level=logging.DEBUG)
     logging.info('{0} :: Logging initiated.'.format(
         datetime.strftime(datetime.today(),'%Y-%m-%d %H:%M')))
     preProcessor(infile,'FullDataFileClean.txt')
     DataFile('FullDataFileClean.txt',outdir)
-    
-    
+
+
 class preProcessor(object):
 
     re_error_1 = r'DB-LIBRARY error:'
     re_error_2 = r"\tSome character\(s\) could not be converted into client's character set.  Unconverted bytes were changed to question marks \('\?'\)"
     re_error_3 = r"Operating-system error:"
     re_error_4 = r"\tSuccess"
+    re_error_5 = r"Changed database context to 'PROD_887X'."
+    re_error_6 = r"Changed language setting to us_english."
+
     # Get rid of any newline that isn't followed by a valid line start:
     re_badline = r"(?![ABFH12RDE]{1}\|)"
 
-    pat_e1,pat_e2,pat_e3,pat_e4= \
-      [re.compile(x) for x in [re_error_1,re_error_2,re_error_3,re_error_4]]
+    pat_e1,pat_e2,pat_e3,pat_e4,pat_e5,pat_e6 = \
+      [re.compile(x) for x in [re_error_1,re_error_2,re_error_3,re_error_4,re_error_5,re_error_6]]
 
     bad_pat = re.compile(re_badline)
 
@@ -42,7 +45,7 @@ class preProcessor(object):
         full_list = fullfile.split('\n')
         full_list.pop(-1)
         for num,line in enumerate(full_list):
-            for item in [self.pat_e1,self.pat_e2,self.pat_e3,self.pat_e4]:
+            for item in [self.pat_e1,self.pat_e2,self.pat_e3,self.pat_e4,self.pat_e5,self.pat_e6]:
                 if item.match(line):
                     logging.info('Deleting bad line: {0}'.format(item.pattern))
                     full_list[num] = item.sub('',line)
@@ -65,7 +68,7 @@ class preProcessor(object):
                     items_remaining -= 1
             logging.info(
                 'Completed a loop. Items remaining:'.format(items_remaining))
-                
+
         for line in full_list:
             new_file.write(line + '\n')
 
@@ -77,7 +80,7 @@ class preProcessor(object):
         logging.info('Parsing {0}'.format(filepath))
         self.preprocessfile(filepath)
         logging.info('Parsing complete.')
-    
+
 """
 This set of scripts parses the full text of the IRS' political files
 into a series of databases.
@@ -183,7 +186,7 @@ class DataFile(object):
                       'expenditure_date','expenditure_purpose','empty_field']
     footer_head = ['transmission_date',
                            'transmission_time','record_count','empty_field']
-                     
+
 
     def __init__(self,inpath,outdir):
         self.lines = self.linereader(inpath)
@@ -220,13 +223,13 @@ class DataFile(object):
         for handler in type_map.values():
             handler.close()
         logging.debug('Files closed.')
-            
+
 class aForm(object):
 
     def writer_object(self):
         self.csvfile = open(self.outpath,'w')
         self.writer = csv.writer(self.csvfile,encoding='utf8')
-        
+
     def write_header(self):
         self.writer.writerow(self.header_column)
 
@@ -254,4 +257,3 @@ class aForm(object):
         self.outpath = os.path.join(outdir,outfile)
         self.writer_object()
         self.write_header()
-
