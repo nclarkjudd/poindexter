@@ -1,6 +1,6 @@
 import os
 import re
-import unicodecsv as csv
+import csv
 import logging
 from datetime import datetime
 
@@ -228,13 +228,13 @@ class aForm(object):
 
     def writer_object(self):
         self.csvfile = open(self.outpath,'w')
-        self.writer = csv.writer(self.csvfile,encoding='utf8')
+        self.writer = csv.writer(self.csvfile)
 
     def write_header(self):
         self.writer.writerow(self.header_column)
 
     def add(self,a_row):
-        row_clean = [unicode(i,errors='ignore') for i in a_row]
+        row_clean = [i.encode(errors='ignore') for i in a_row]
         coldiff = len(row_clean) - len(self.header_column)
         if coldiff > 0:
             raise Exception('Too many items in row:\n{0}'.format(a_row))
