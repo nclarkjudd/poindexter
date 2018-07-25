@@ -3,15 +3,15 @@ import re
 import unicodecsv as csv
 import logging
 from datetime import datetime
-    
+
 def flatfile_maker(infile,outdir='csvs'):
     logging.basicConfig(filename='filemaker.log',level=logging.DEBUG)
     logging.info('{0} :: Logging initiated.'.format(
         datetime.strftime(datetime.today(),'%Y-%m-%d %H:%M')))
     preProcessor(infile,'FullDataFileClean.txt')
     DataFile('FullDataFileClean.txt',outdir)
-    
-    
+
+
 class preProcessor(object):
 
     re_error_1 = r'DB-LIBRARY error:'
@@ -65,7 +65,7 @@ class preProcessor(object):
                     items_remaining -= 1
             logging.info(
                 'Completed a loop. Items remaining:'.format(items_remaining))
-                
+
         for line in full_list:
             new_file.write(line + '\n')
 
@@ -77,7 +77,7 @@ class preProcessor(object):
         logging.info('Parsing {0}'.format(filepath))
         self.preprocessfile(filepath)
         logging.info('Parsing complete.')
-    
+
 """
 This set of scripts parses the full text of the IRS' political files
 into a series of databases.
@@ -183,7 +183,7 @@ class DataFile(object):
                       'expenditure_date','expenditure_purpose','empty_field']
     footer_head = ['transmission_date',
                            'transmission_time','record_count','empty_field']
-                     
+
 
     def __init__(self,inpath,outdir):
         self.lines = self.linereader(inpath)
@@ -220,13 +220,13 @@ class DataFile(object):
         for handler in type_map.values():
             handler.close()
         logging.debug('Files closed.')
-            
+
 class aForm(object):
 
     def writer_object(self):
         self.csvfile = open(self.outpath,'w')
         self.writer = csv.writer(self.csvfile,encoding='utf8')
-        
+
     def write_header(self):
         self.writer.writerow(self.header_column)
 
@@ -234,7 +234,7 @@ class aForm(object):
         row_clean = [unicode(i,errors='ignore') for i in a_row]
         coldiff = len(row_clean) - len(self.header_column)
         if coldiff > 0:
-            raise Exception, 'Too many items in row:\n{0}'.format(a_row)
+            raise Exception('Too many items in row:\n{0}'.format(a_row))
         elif coldiff < 0:
             logging.warn('Adding empty values to truncated row:\n{0}'.
                          format(a_row))
@@ -254,4 +254,3 @@ class aForm(object):
         self.outpath = os.path.join(outdir,outfile)
         self.writer_object()
         self.write_header()
-
