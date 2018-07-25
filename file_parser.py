@@ -213,14 +213,14 @@ class DataFile(object):
             }
         for num,row in enumerate(self.lines):
             row = row.strip().strip('\n').split('|')
-            if row[0] not in type_map.keys():
+            if row[0] not in list(type_map.keys()):
                 logging.warn('Bad line: {0}\n{1}'.format(num,row))
             else:
                 type_map[row[0]].add(row[1:])
             if num % 100000 == 0:
                 logging.info('Parsed through line {0}.'.format(str(num)))
         logging.debug('Writing done.')
-        for handler in type_map.values():
+        for handler in list(type_map.values()):
             handler.close()
         logging.debug('Files closed.')
 
@@ -241,7 +241,7 @@ class aForm(object):
         elif coldiff < 0:
             logging.warn('Adding empty values to truncated row:\n{0}'.
                          format(a_row))
-            row_clean = row_clean + [u'' for x in xrange(abs(coldiff))]
+            row_clean = row_clean + ['' for x in range(abs(coldiff))]
         else:
             self.writer.writerow(row_clean)
         coldiff = len(row_clean) - len(self.header_column)
