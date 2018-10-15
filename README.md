@@ -1,5 +1,5 @@
 # o_o poindexter o_o
-**A tool for wrangling IRS data on 527s**
+**A software package for processing IRS data on 527 political organizations**
 
 Poindexter does the following:
 * Downloads and extracts the IRS' bulk Political Organization Filing and Disclosure data file
